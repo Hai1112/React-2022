@@ -5,6 +5,11 @@ import Announcement from "../components/Announcement";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import Newsletter from "../components/Newsletter";
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { publicRequest } from "../requestMethods";
+import { useDispatch } from "react-redux";
+import { addProduct } from "../redux/cartRedux";
 
 const Container = styled.div``;
 
@@ -64,6 +69,7 @@ const FilterColor = styled.div`
   width: 20px;
   height: 20px;
   border-radius: 50%;
+  border: 1px solid lightgray;
   background-color: ${(props) => props.color};
   margin: 0px 5px;
   cursor: pointer;
@@ -112,53 +118,73 @@ const Button = styled.button`
 `;
 
 const Product = () => {
+  const location = useLocation();
+  const id = location.pathname.split("/")[2];
+  const [product, setProduct] = useState({});
+  const [color, setColor] = useState("");
+  const [size, setSize] = useState(product.size?.[0]);
+  const [quantity, setQuantity] = useState(1);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const getProduct = async () => {
+      const res = await publicRequest.get(`/products/find/${id}`);
+      setProduct(res.data);
+    };
+    getProduct();
+  }, [id]);
+
+  const handleQuantity = (type) => {
+    if (type === "decrease") {
+      quantity > 0 && setQuantity(quantity - 1);
+    } else {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const handleClick = () => {
+    dispatch(addProduct({ ...product, quantity, color, size }));
+  };
+
   return (
     <Container>
       <Announcement />
       <Navbar />
       <Wrapper>
         <ImageContainer>
-          <Image
-            src="/images/402 Cotton Jersey Stitching Slit Crow on Lungs and Flowers Message T-shirt.webp"
-            alt=""
-          />
+          <Image src={product.image} alt="" />
         </ImageContainer>
         <InfoContainer>
-          <Title>
-            40/2 Cotton Jersey Stitching Slit Crow on Lungs and Flowers Message
-            T-shirt
-          </Title>
-          <Desc>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nam earum
-            atque quasi optio recusandae incidunt eum dolorem saepe voluptates
-            totam!
-          </Desc>
-          <Price>$ 100</Price>
+          <Title>{product.title}</Title>
+          <Desc>{product.description}</Desc>
+          <Price>$ {product.price}</Price>
           <FilterContainer>
             <Filter>
               <FilterTitle>Color</FilterTitle>
-              <FilterColor color="black" />
-              <FilterColor color="darkblue" />
-              <FilterColor color="gray" />
+              {product.color?.map((color) => (
+                <FilterColor
+                  color={color}
+                  key={color}
+                  onClick={() => setColor(color)}
+                />
+              ))}
             </Filter>
             <Filter>
               <FilterTitle>Size</FilterTitle>
-              <FilterSize>
-                <FilterSizeOption>XS</FilterSizeOption>
-                <FilterSizeOption>S</FilterSizeOption>
-                <FilterSizeOption>M</FilterSizeOption>
-                <FilterSizeOption>L</FilterSizeOption>
-                <FilterSizeOption>XL</FilterSizeOption>
+              <FilterSize onClick={(e) => setSize(e.target.value)}>
+                {product.size?.map((size) => (
+                  <FilterSizeOption key={size}>{size}</FilterSizeOption>
+                ))}
               </FilterSize>
             </Filter>
           </FilterContainer>
           <AddContainer>
             <AmountContainer>
-              <RemoveIcon />
-              <Amount>2</Amount>
-              <AddIcon />
+              <RemoveIcon onClick={() => handleQuantity("decrease")} />
+              <Amount>{quantity}</Amount>
+              <AddIcon onClick={() => handleQuantity("increase")} />
             </AmountContainer>
-            <Button>ADD TO CART</Button>
+            <Button onClick={handleClick}>ADD TO CART</Button>
           </AddContainer>
         </InfoContainer>
       </Wrapper>

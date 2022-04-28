@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { products } from "../Data";
 import { Product } from "./Product";
+import { publicRequest } from "../requestMethods";
 
 const Container = styled.div`
   padding: 20px;
@@ -9,12 +10,58 @@ const Container = styled.div`
   justify-content: space-between;
 `;
 
-const Products = () => {
+const Products = ({ category, filters, sort }) => {
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+
+  useEffect(() => {
+    const getProducts = async () => {
+      try {
+        const res = await publicRequest.get(
+          category ? `/products?category=${category}` : "/products"
+        );
+        setProducts(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getProducts();
+  }, [category]);
+
+  useEffect(() => {
+    category &&
+      setFilteredProducts(
+        products.filter((item) =>
+          Object.entries(filters).every(([key, value]) =>
+            item[key].includes(value)
+          )
+        )
+      );
+  }, [category, filters, products]);
+
+  useEffect(() => {
+    if (sort === "newest") {
+      setFilteredProducts((prev) =>
+        [...prev].sort((a, b) => a.createdAt - b.createdAt)
+      );
+    } else if (sort === "asc") {
+      setFilteredProducts((prev) =>
+        [...prev].sort((a, b) => a.price - b.price)
+      );
+    } else {
+      setFilteredProducts((prev) =>
+        [...prev].sort((a, b) => b.price - a.price)
+      );
+    }
+  }, [sort]);
+
   return (
     <Container>
-      {products.map((item) => (
-        <Product key={item.id} item={item} />
-      ))}
+      {category
+        ? filteredProducts.map((item) => <Product key={item._id} item={item} />)
+        : products
+            .slice(0, 10)
+            .map((item) => <Product item={item} key={item.id} />)}
     </Container>
   );
 };

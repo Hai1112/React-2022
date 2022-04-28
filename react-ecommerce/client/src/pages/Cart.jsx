@@ -5,6 +5,13 @@ import Announcement from "../components/Announcement";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import Newsletter from "../components/Newsletter";
+import { useSelector } from "react-redux";
+import StripeCheckout from "react-stripe-checkout";
+import { useEffect, useState } from "react";
+import { userRequest } from "../requestMethods";
+import { useNavigate } from "react-router-dom";
+
+const KEY = process.env.REACT_APP_STRIPE;
 
 const Container = styled.div``;
 
@@ -81,6 +88,7 @@ const ProductColor = styled.div`
   height: 20px;
   border-radius: 50%;
   background-color: ${(props) => props.color};
+  border: 1px solid lightgray;
 `;
 
 const ProductSize = styled.p``;
@@ -150,6 +158,25 @@ const Button = styled.button`
 `;
 
 const Cart = () => {
+  const cart = useSelector((state) => state.cart);
+  const [stripeToken, setStripeToken] = useState(null);
+  const navigate = useNavigate();
+
+  const onToken = (token) => {
+    setStripeToken(token);
+  };
+
+  useEffect(() => {
+    const makeRequest = async () => {
+      const res = await userRequest.post("/checkout/payment", {
+        tokenId: stripeToken.id,
+        amount: cart.total * 100,
+      });
+      navigate("/success");
+    };
+    stripeToken && makeRequest();
+  }, [stripeToken, cart.total, navigate]);
+
   return (
     <Container>
       <Announcement />
@@ -166,39 +193,46 @@ const Cart = () => {
         </Top>
         <Bottom>
           <Info>
-            <Product>
-              <ProductDetail>
-                <Image src="/images/Pe  Chiffon A Drape Jacket.webp" alt="" />
-                <Details>
-                  <ProductName>
-                    <b>Product: </b>Pe / Chiffon A Drape Jacket
-                  </ProductName>
-                  <ProductId>
-                    <b>ID: </b>183991694691
-                  </ProductId>
-                  <ProductColor color="black" />
-                  <ProductSize>
-                    <b>Size: </b>M
-                  </ProductSize>
-                </Details>
-              </ProductDetail>
-              <PriceDetail>
-                <ProductAmountContainer>
-                  <RemoveIcon />
-                  <ProductAmount>3</ProductAmount>
-                  <AddIcon />
-                </ProductAmountContainer>
-                <ProductPrice>$ 300</ProductPrice>
-              </PriceDetail>
-              <Hr />
-            </Product>
+            {cart.products.map((product) => (
+              <Product>
+                <ProductDetail>
+                  <Image src={product.image} alt="" />
+                  <Details>
+                    <ProductName>
+                      <b>Product: </b>
+                      {product.title}
+                    </ProductName>
+                    <ProductId>
+                      <b>ID: </b>
+                      {product._id}
+                    </ProductId>
+                    <ProductColor color={product.color} />
+                    <ProductSize>
+                      <b>Size: </b>
+                      {product.size}
+                    </ProductSize>
+                  </Details>
+                </ProductDetail>
+                <PriceDetail>
+                  <ProductAmountContainer>
+                    <RemoveIcon />
+                    <ProductAmount>{product.quantity}</ProductAmount>
+                    <AddIcon />
+                  </ProductAmountContainer>
+                  <ProductPrice>
+                    $ {product.price * product.quantity}
+                  </ProductPrice>
+                </PriceDetail>
+                <Hr />
+              </Product>
+            ))}
           </Info>
 
           <Summary>
             <SummaryTitle>ORDER SUMMARY</SummaryTitle>
             <SummaryItem>
               <SummaryItemText>Subtotal</SummaryItemText>
-              <SummaryItemPrice>$ 300</SummaryItemPrice>
+              <SummaryItemPrice>$ {cart.total}</SummaryItemPrice>
             </SummaryItem>
             <SummaryItem>
               <SummaryItemText>Estimated Shipping</SummaryItemText>
@@ -210,9 +244,20 @@ const Cart = () => {
             </SummaryItem>
             <SummaryItem type="total">
               <SummaryItemText>Total</SummaryItemText>
-              <SummaryItemPrice>$ 300</SummaryItemPrice>
+              <SummaryItemPrice>$ {cart.total}</SummaryItemPrice>
             </SummaryItem>
-            <Button>CHECKOUT</Button>
+            <StripeCheckout
+              name="SHOP."
+              image="/images/Ayaka.jpg"
+              billingAddress
+              shippingAddress
+              description={`Your total is $ ${cart.total * 100}`}
+              amount={cart.total * 100}
+              token={onToken}
+              stripeKey={KEY}
+            >
+              <Button>CHECKOUT</Button>
+            </StripeCheckout>
           </Summary>
         </Bottom>
       </Wrapper>

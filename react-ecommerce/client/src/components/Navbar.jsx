@@ -2,6 +2,8 @@ import styled from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import Badge from "@mui/material/Badge";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
   height: 60px;
@@ -43,6 +45,11 @@ const Center = styled.div`
   text-align: center;
 `;
 
+const StyledLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+`;
+
 const Logo = styled.h1`
   font-weight: bold;
 `;
@@ -61,6 +68,8 @@ const MenuItem = styled.div`
 `;
 
 const Navbar = () => {
+  const quantity = useSelector((state) => state.cart.quantity);
+  console.log(quantity);
   return (
     <Container>
       <Wrapper>
@@ -72,16 +81,24 @@ const Navbar = () => {
           </SearchWrapper>
         </Left>
         <Center>
-          <Logo>SHOP.</Logo>
+          <StyledLink to="/">
+            <Logo>SHOP.</Logo>
+          </StyledLink>
         </Center>
         <Right>
-          <MenuItem>SIGN IN</MenuItem>
-          <MenuItem>REGISTER</MenuItem>
-          <MenuItem>
-            <Badge badgeContent={4} color="primary">
-              <ShoppingCartOutlinedIcon color="action" />
-            </Badge>
-          </MenuItem>
+          <StyledLink to="/login">
+            <MenuItem>SIGN IN</MenuItem>
+          </StyledLink>
+          <StyledLink to="/register">
+            <MenuItem>REGISTER</MenuItem>
+          </StyledLink>
+          <StyledLink to="/cart">
+            <MenuItem>
+              <Badge badgeContent={quantity} color="primary">
+                <ShoppingCartOutlinedIcon color="action" />
+              </Badge>
+            </MenuItem>
+          </StyledLink>
         </Right>
       </Wrapper>
     </Container>
