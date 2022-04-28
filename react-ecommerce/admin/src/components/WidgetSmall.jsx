@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { userRequest } from "../requestMethods";
 
 const Container = styled.div`
   flex: 1;
@@ -55,60 +57,32 @@ const UserTitle = styled.p`
 `;
 
 const WidgetSmall = () => {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const getUsers = async () => {
+      try {
+        const res = await userRequest.get("/users?new=true");
+        setUsers(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getUsers();
+  }, []);
   return (
     <Container>
       <Title>New Joined</Title>
       <List>
-        <ListItem>
-          <Image
-            src="/images/042_Character_Sangonomiya_Kokomi_Thumb.webp"
-            alt=""
-          />
-          <UserInfo>
-            <UserName>Sangonomiya Kokomi</UserName>
-            <UserTitle>Priestess of Watatsumi</UserTitle>
-          </UserInfo>
-        </ListItem>
-        <ListItem>
-          <Image
-            src="/images/042_Character_Sangonomiya_Kokomi_Thumb.webp"
-            alt=""
-          />
-          <UserInfo>
-            <UserName>Sangonomiya Kokomi</UserName>
-            <UserTitle>Priestess of Watatsumi</UserTitle>
-          </UserInfo>
-        </ListItem>
-        <ListItem>
-          <Image
-            src="/images/042_Character_Sangonomiya_Kokomi_Thumb.webp"
-            alt=""
-          />
-          <UserInfo>
-            <UserName>Sangonomiya Kokomi</UserName>
-            <UserTitle>Priestess of Watatsumi</UserTitle>
-          </UserInfo>
-        </ListItem>
-        <ListItem>
-          <Image
-            src="/images/042_Character_Sangonomiya_Kokomi_Thumb.webp"
-            alt=""
-          />
-          <UserInfo>
-            <UserName>Sangonomiya Kokomi</UserName>
-            <UserTitle>Priestess of Watatsumi</UserTitle>
-          </UserInfo>
-        </ListItem>
-        <ListItem>
-          <Image
-            src="/images/042_Character_Sangonomiya_Kokomi_Thumb.webp"
-            alt=""
-          />
-          <UserInfo>
-            <UserName>Sangonomiya Kokomi</UserName>
-            <UserTitle>Priestess of Watatsumi</UserTitle>
-          </UserInfo>
-        </ListItem>
+        {users?.map((user) => (
+          <ListItem key={user._id}>
+            <Image src={user.image || "/images/default_user.png"} alt="" />
+            <UserInfo>
+              <UserName>{user.username}</UserName>
+              <UserTitle>{user.title}</UserTitle>
+            </UserInfo>
+          </ListItem>
+        ))}
       </List>
     </Container>
   );

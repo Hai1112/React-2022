@@ -1,4 +1,7 @@
 import styled from "styled-components";
+import { useState, useEffect } from "react";
+import { userRequest } from "../requestMethods";
+import { format } from "timeago.js";
 
 const Container = styled.div`
   flex: 3;
@@ -38,14 +41,14 @@ const UserWrapper = styled.div`
   cursor: pointer;
 `;
 
-const Image = styled.img`
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 0.5px solid lightgray;
-  margin-right: 12px;
-`;
+// const Image = styled.img`
+//   width: 40px;
+//   height: 40px;
+//   object-fit: cover;
+//   border-radius: 50%;
+//   border: 0.5px solid lightgray;
+//   margin-right: 12px;
+// `;
 
 const CustomerName = styled.span``;
 
@@ -62,6 +65,20 @@ const Button = styled.button`
 `;
 
 const WidgetLarge = () => {
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    const getOrders = async () => {
+      try {
+        const res = await userRequest.get("/orders");
+        setOrders(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getOrders();
+  }, []);
+
   const CreateButton = (type) => {
     switch (type) {
       case "Approved":
@@ -100,39 +117,19 @@ const WidgetLarge = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow>
-            <TableData>
-              <UserWrapper>
-                <Image src="/images/Ayaka.jpg" alt="" />
-                <CustomerName>Kamisato Ayaka</CustomerName>
-              </UserWrapper>
-            </TableData>
-            <TableData>2 April 2022</TableData>
-            <TableData>$ 460.90</TableData>
-            <TableData>{CreateButton("Approved")}</TableData>
-          </TableRow>
-          <TableRow>
-            <TableData>
-              <UserWrapper>
-                <Image src="/images/Ayaka.jpg" alt="" />
-                <CustomerName>Kamisato Ayaka</CustomerName>
-              </UserWrapper>
-            </TableData>
-            <TableData>2 April 2022</TableData>
-            <TableData>$ 460.90</TableData>
-            <TableData>{CreateButton("Pending")}</TableData>
-          </TableRow>
-          <TableRow>
-            <TableData>
-              <UserWrapper>
-                <Image src="/images/Ayaka.jpg" alt="" />
-                <CustomerName>Kamisato Ayaka</CustomerName>
-              </UserWrapper>
-            </TableData>
-            <TableData>2 April 2022</TableData>
-            <TableData>$ 460.90</TableData>
-            <TableData>{CreateButton("Declined")}</TableData>
-          </TableRow>
+          {orders.map((order) => (
+            <TableRow key={order._id}>
+              <TableData>
+                <UserWrapper>
+                  {/* <Image src="/images/Ayaka.jpg" alt="" /> */}
+                  <CustomerName>{order.userId}</CustomerName>
+                </UserWrapper>
+              </TableData>
+              <TableData>{format(order.createdAt)}</TableData>
+              <TableData>$ {order.amount}</TableData>
+              <TableData>{CreateButton(`${order.status}`)}</TableData>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </Container>

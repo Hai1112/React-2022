@@ -5,7 +5,10 @@ import Sidebar from "../components/Sidebar";
 import TopBar from "../components/TopBar";
 import { productData } from "../DATA";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useEffect, useMemo, useState } from "react";
+import { userRequest } from "../requestMethods";
 
 const Container = styled.div``;
 
@@ -136,6 +139,50 @@ const Select = styled.select`
 const Option = styled.option``;
 
 const Product = () => {
+  const location = useLocation();
+  const productId = location.pathname.split("/")[2];
+  const [productStats, setProductStats] = useState([]);
+
+  const product = useSelector((state) =>
+    state.product.products.find((product) => product._id === productId)
+  );
+
+  const Months = useMemo(
+    () => [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+    []
+  );
+
+  useEffect(() => {
+    const getProductStats = async () => {
+      try {
+        const res = await userRequest.get(`/orders/income?pid=${productId}`);
+        const list = res.data.sort((a, b) => a._id - b._id);
+        list.map((item) =>
+          setProductStats((prev) => [
+            ...prev,
+            { name: Months[item._id - 1], Sales: item.total },
+          ])
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    getProductStats();
+  }, [Months, productId]);
+
   return (
     <Container>
       <TopBar />
@@ -143,7 +190,7 @@ const Product = () => {
         <Sidebar />
         <Main>
           <ProductHeader>
-            <Title>Product Name</Title>
+            <Title>{product.title}</Title>
             <StyledLink to="/newProduct">
               <Button variant="contained">CREATE</Button>
             </StyledLink>
@@ -152,17 +199,19 @@ const Product = () => {
             <Left>
               <ProductInfo>
                 <ImageWrapper>
-                  <Image
-                    src="/images/Triangle random border Drape big T.webp"
-                    alt=""
-                  />
+                  <Image src={product.image} alt="" />
                 </ImageWrapper>
                 <InfoWrapper>
                   <InfoItem>
-                    <b>Product: </b>Triangle random border Drape big T
+                    <b>Product: </b>
+                    {product.title}
                   </InfoItem>
                   <InfoItem>
-                    <b>Product ID: </b>1165489426785
+                    <b>Product ID: </b>
+                    {product._id}
+                  </InfoItem>
+                  <InfoItem>
+                    <b>Price: </b>$ {product.price}
                   </InfoItem>
                   <InfoItem>
                     <b>Sales: </b>4795
@@ -171,13 +220,14 @@ const Product = () => {
                     <b>Active: </b>Yes
                   </InfoItem>
                   <InfoItem>
-                    <b>In Stock: </b>No
+                    <b>In Stock: </b>
+                    {product.inStock}
                   </InfoItem>
                 </InfoWrapper>
               </ProductInfo>
               <ProductChart>
                 <Chart
-                  data={productData}
+                  data={productStats}
                   dataKey="Sales"
                   title="Sale Performance"
                 />
@@ -186,10 +236,7 @@ const Product = () => {
             <Right>
               <Form>
                 <UploadContainer>
-                  <UploadImage
-                    src="/images/Triangle random border Drape big T.webp"
-                    alt=""
-                  />
+                  <UploadImage src={product.image} alt="" />
                   <UploadInput type="file" id="file" />
                   <UploadLabel htmlFor="file">
                     <DriveFolderUploadIcon
@@ -200,23 +247,28 @@ const Product = () => {
                 <InputContainer>
                   <InputItem>
                     <InputLabel>Product Name</InputLabel>
-                    <Input
-                      type="text"
-                      placeholder="Triangle random border Drape big T"
-                    />
+                    <Input type="text" placeholder={product.title} />
+                  </InputItem>
+                  <InputItem>
+                    <InputLabel>Product Description</InputLabel>
+                    <Input type="text" placeholder={product.description} />
+                  </InputItem>
+                  <InputItem>
+                    <InputLabel>Price</InputLabel>
+                    <Input type="text" placeholder={product.price} />
                   </InputItem>
                   <InputItem>
                     <InputLabel>Active</InputLabel>
                     <Select>
-                      <Option value="yes">Yes</Option>
-                      <Option value="no">NO</Option>
+                      <Option value="true">Yes</Option>
+                      <Option value="false">No</Option>
                     </Select>
                   </InputItem>
                   <InputItem>
                     <InputLabel>In Stock</InputLabel>
                     <Select>
-                      <Option value="yes">Yes</Option>
-                      <Option value="no">NO</Option>
+                      <Option value="true">Yes</Option>
+                      <Option value="false">No</Option>
                     </Select>
                   </InputItem>
                   <Button

@@ -1,10 +1,11 @@
 import styled from "styled-components";
 import { DataGrid } from "@mui/x-data-grid";
-import { productRows } from "../DATA";
 import TopBar from "../components/TopBar";
 import Sidebar from "../components/Sidebar";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteProducts, getProducts } from "../redux/apiCalls";
 
 const Container = styled.div``;
 
@@ -23,7 +24,7 @@ const Title = styled.h1`
 `;
 
 const DataGridContainer = styled.div`
-  height: 60vh;
+  height: calc(100vh - 150px);
 `;
 
 const UserContainer = styled.div`
@@ -59,38 +60,43 @@ const Button = styled.button`
 `;
 
 const Products = () => {
-  const [data, setData] = useState(productRows);
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.product.products);
+
+  useEffect(() => {
+    getProducts(dispatch);
+  }, [dispatch]);
 
   const handleDelete = (id) => {
-    setData(data.filter((item) => item.id !== id));
+    deleteProducts(dispatch, id);
   };
 
   const columns = [
-    { field: "id", headerName: "ID", width: 90 },
+    { field: "_id", headerName: "ID", width: 220 },
     {
       field: "product",
       headerName: "Product",
-      width: 200,
+      width: 400,
       renderCell: (params) => {
         return (
           <UserContainer>
-            <Image src={params.row.img} alt="" />
-            {params.row.name}
+            <Image src={params.row.image} alt="" />
+            {params.row.title}
           </UserContainer>
         );
       },
     },
-    { field: "stock", headerName: "Stock", width: 200 },
-    { field: "status", headerName: "Status", width: 120 },
-    { field: "price", headerName: "Price", width: 160 },
+    { field: "inStock", headerName: "Stock", width: 120 },
+    // { field: "status", headerName: "Status", width: 120 },
+    { field: "price", headerName: "Price", width: 120 },
     {
       filed: "action",
       headerName: "Action",
-      width: 150,
+      width: 200,
       renderCell: (params) => {
         return (
           <ActionContainer>
-            <Link to={`/product/${params.row.id}`}>
+            <Link to={`/product/${params.row._id}`}>
               <Button color="white" bg="#3bb077">
                 Edit
               </Button>
@@ -98,7 +104,7 @@ const Products = () => {
             <Button
               color="red"
               bg="#f9dbdd"
-              onClick={() => handleDelete(params.row.id)}
+              onClick={() => handleDelete(params.row._id)}
             >
               Delete
             </Button>
@@ -116,10 +122,11 @@ const Products = () => {
           <Title>User List</Title>
           <DataGridContainer>
             <DataGrid
-              rows={data}
+              rows={products}
               columns={columns}
-              pageSize={5}
-              rowsPerPageOptions={[5]}
+              getRowId={(row) => row._id}
+              pageSize={10}
+              rowsPerPageOptions={[10]}
               checkboxSelection
               disableSelectionOnClick
             />
