@@ -5,8 +5,8 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import PinterestIcon from "@mui/icons-material/Pinterest";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import { Link } from "react-router-dom";
-import { useContext } from "react";
-import { Context } from "../context/Context";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/apiCalls";
 
 const Container = styled.div`
   display: flex;
@@ -37,7 +37,7 @@ const Center = styled.div`
 const Right = styled.div`
   flex: 1;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 `;
 
@@ -62,20 +62,25 @@ const StyledLink = styled(Link)`
   text-decoration: none;
 `;
 
-const Avatar = styled.img`
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 50%;
+const Logout = styled(Link)`
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin: 0 24px;
+  padding: 0 20px;
+  font-family: "Josefin Sans", sans-serif;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 `;
 
 const Navbar = () => {
-  const { user, dispatch } = useContext(Context);
-  const PF = "http://localhost:5000/images/";
-
+  const user = useSelector((state) => state.user.currentUser);
+  const dispatch = useDispatch();
   const handleLogout = () => {
-    dispatch({ type: "LOGOUT" });
+    logout(dispatch);
   };
+
   return (
     <Container>
       <Left>
@@ -100,37 +105,23 @@ const Navbar = () => {
           <ListItem>
             <StyledLink to="">ABOUT</StyledLink>
           </ListItem>
-          <ListItem>
-            <StyledLink to="/write">WRITE</StyledLink>
-          </ListItem>
+          {user && (
+            <ListItem>
+              <StyledLink to="/write">WRITE</StyledLink>
+            </ListItem>
+          )}
           <ListItem>
             <StyledLink to="">CONTACT</StyledLink>
           </ListItem>
-          {user && (
-            <ListItem>
-              <StyledLink to="/login" onClick={handleLogout}>
-                LOGOUT
-              </StyledLink>
-            </ListItem>
-          )}
         </List>
       </Center>
       <Right>
-        {user ? (
-          <Link to="/settings">
-            <Avatar src={PF + user.profilePic} alt="Avatar"></Avatar>
-          </Link>
-        ) : (
-          <List>
-            <ListItem>
-              <StyledLink to="/login">LOGIN</StyledLink>
-            </ListItem>
-            <ListItem>
-              <StyledLink to="/register">REGISTER</StyledLink>
-            </ListItem>
-          </List>
-        )}
         <SearchIcon />
+        {user && (
+          <Logout to="/login" onClick={handleLogout}>
+            LOGOUT
+          </Logout>
+        )}
       </Right>
     </Container>
   );

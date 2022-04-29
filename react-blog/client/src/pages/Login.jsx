@@ -1,13 +1,11 @@
 import { Button } from "@mui/material";
-// import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { useRef, useContext } from "react";
-import { Context } from "../context/Context.js";
-import axios from "axios";
-import Navbar from "../components/Navbar.jsx";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../redux/apiCalls.js";
 
 const Container = styled.div`
-  height: calc(100vh - 60px);
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -41,6 +39,7 @@ const Label = styled.label`
   margin: 10px 0;
   font-family: "Josefin Sans", sans-serif;
 `;
+
 const Input = styled.input`
   padding: 10px;
   margin-bottom: 16px;
@@ -49,71 +48,49 @@ const Input = styled.input`
   border-radius: 4px;
 `;
 
-// const StyledLink = styled(Link)`
-//   color: inherit;
-//   text-decoration: none;
-// `;
+const Error = styled.p`
+  color: red;
+  margin: 12px 0;
+`;
 
 const Login = () => {
-  const userRef = useRef();
-  const passwordRef = useRef();
-  const { user, dispatch, isFetching } = useContext(Context);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const error = useSelector((state) => state.user.error);
+  const dispatch = useDispatch();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    dispatch({ type: "LOGIN_START" });
-    try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        username: userRef.current.value,
-        password: passwordRef.current.value,
-      });
-      dispatch({ type: "LOGIN_SUCCESS", payload: res.data });
-    } catch (err) {
-      dispatch({ type: "LOGIN_FAILURE" });
-    }
+  const handleLogin = () => {
+    login(dispatch, { username: username, password: password });
   };
-  console.log(user);
+
   return (
-    <>
-      <Navbar />
-      <Container>
-        <LoginWrapper>
-          <Title>Login</Title>
-          <Form onSubmit={handleSubmit}>
-            <Label>Username</Label>
-            <Input
-              type="text"
-              name="username"
-              placeholder="Username"
-              ref={userRef}
-            />
-            <Label>Password</Label>
-            <Input
-              type="password"
-              name="password"
-              placeholder="Password"
-              ref={passwordRef}
-            />
-            <Button variant="contained" type="submit" disabled={isFetching}>
-              Login
-            </Button>
-          </Form>
-        </LoginWrapper>
-        {/* <StyledLink to="/register">
-          <Button
-            variant="contained"
-            sx={{
-              position: "absolute",
-              top: "20px",
-              right: "20px",
-              backgroundColor: "#4db6ac",
+    <Container>
+      <LoginWrapper>
+        <Title>Login</Title>
+        <Form>
+          <Label>Username</Label>
+          <Input
+            type="text"
+            name="username"
+            placeholder="Username"
+            onChange={(e) => {
+              setUsername(e.target.value);
             }}
-          >
-            Register
+          />
+          <Label>Password</Label>
+          <Input
+            type="password"
+            name="password"
+            placeholder="Password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {error && <Error>Wrong username or password</Error>}
+          <Button variant="contained" onClick={handleLogin}>
+            Login
           </Button>
-        </StyledLink> */}
-      </Container>
-    </>
+        </Form>
+      </LoginWrapper>
+    </Container>
   );
 };
 

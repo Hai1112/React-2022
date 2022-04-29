@@ -117,7 +117,7 @@ const Sidebar = () => {
         <List>
           {cats.map((cat) => (
             <ListItem key={cat.name}>
-              <StyledLink to={`/?cat=${cat.name}`}>{cat.name}</StyledLink>
+              <StyledLink to={`/${cat.name}`}>{cat.name}</StyledLink>
             </ListItem>
           ))}
         </List>

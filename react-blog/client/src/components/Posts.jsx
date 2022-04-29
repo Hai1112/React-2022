@@ -13,8 +13,8 @@ const Container = styled.div`
 const Posts = ({ posts }) => {
   return (
     <Container>
-      {posts.map((post, index) => (
-        <Post key={index} post={post} />
+      {posts.map((post) => (
+        <Post key={post._id} post={post} />
       ))}
     </Container>
   );

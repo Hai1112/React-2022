@@ -36,6 +36,9 @@ const Category = styled.div`
   cursor: pointer;
   color: #fdd835;
   font-size: 14px;
+  &::first-letter {
+    text-transform: uppercase;
+  }
 `;
 
 const StyledLink = styled(Link)`
@@ -70,14 +73,13 @@ const Description = styled.p`
 `;
 
 const Post = ({ post }) => {
-  const PF = "http://localhost:5000/images/";
   return (
     <Container>
-      {post.photo && <Image src={PF + post.photo} alt="image" />}
+      {post.image && <Image src={post.image} alt="image" />}
       <Content>
         <Categories>
-          {post.categories.map((cat) => (
-            <Category key={cat}>{cat}</Category>
+          {post.categories.map((category) => (
+            <Category key={category}>{category}</Category>
           ))}
         </Categories>
         <StyledLink to={`/post/${post._id}`}>
