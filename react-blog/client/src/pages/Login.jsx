@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../redux/apiCalls.js";
+import { mobile } from "../responsive";
 
 const Container = styled.div`
   height: 100vh;
@@ -21,9 +22,10 @@ const Container = styled.div`
 
 const LoginWrapper = styled.div`
   width: 20%;
-  background-color: rgba(227, 242, 253, 0.8);
+  background-color: rgba(227, 242, 253, 0.6);
   padding: 20px;
   border-radius: 6px;
+  ${mobile({ width: "80%" })}
 `;
 
 const Title = styled.h1`

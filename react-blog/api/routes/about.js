@@ -1,24 +1,23 @@
 const router = require("express").Router();
-const PhotoCover = require("../models/PhotoCover");
+const About = require("../models/About");
 const verifyToken = require("./verifyToken");
 
 //CREATE
 router.post("/", verifyToken, async (req, res) => {
-  const newPhotoCover = new PhotoCover(req.body);
+  const newAbout = new About(req.body);
   try {
-    const savedPhotoCover = await newPhotoCover.save();
-    res.status(200).json(savedPhotoCover);
+    const savedAbout = await newAbout.save();
+    res.status(200).json(savedAbout);
   } catch (err) {
-    // res.status(500).json(err);
     console.log(err);
   }
 });
 
-//GET
+//GET ALL
 router.get("/", async (req, res) => {
   try {
-    const photoCover = await PhotoCover.find();
-    res.status(200).json(photoCover);
+    const about = await About.find();
+    res.status(200).json(about);
   } catch (err) {
     // res.status(500).json(err);
     console.log(err);
@@ -28,14 +27,14 @@ router.get("/", async (req, res) => {
 //UPDATE
 router.put("/:id", verifyToken, async (req, res) => {
   try {
-    const updatedCover = await PhotoCover.findByIdAndUpdate(
+    const updatedAbout = await About.findByIdAndUpdate(
       req.params.id,
       {
         $set: req.body,
       },
       { new: true }
     );
-    res.status(200).json(updatedCover);
+    res.status(200).json(updatedAbout);
   } catch (err) {
     // res.status(500).json(err);
     console.log(err);

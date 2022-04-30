@@ -19,7 +19,6 @@ router.put("/:id", verifyToken, async (req, res) => {
     );
     res.status(200).json(updatedUser);
   } catch (err) {
-    res.status(500).json(err);
     console.log(err);
   }
 });

@@ -2,13 +2,11 @@ import styled from "styled-components";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Button } from "@mui/material";
-import SendIcon from "@mui/icons-material/Send";
 import { useDispatch, useSelector } from "react-redux";
-import { updatePost, deletePost } from "../redux/apiCalls";
+import { updatePost } from "../redux/apiCalls";
 import {
   getStorage,
   ref,
@@ -16,6 +14,9 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import app from "../firebase";
+import { publicRequest } from "../requestMethods";
+import { mobile } from "../responsive";
+import ConfirmModal from "./ConfirmModal";
 
 const Container = styled.div`
   flex: 3;
@@ -23,6 +24,7 @@ const Container = styled.div`
   flex-direction: column;
   margin: 20px;
   padding: 8px;
+  ${mobile({ margin: 0, padding: "10px" })}
 `;
 
 const Image = styled.img`
@@ -72,6 +74,7 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   margin: 20px 0;
+  ${mobile({ margin: "20px 0 0 0 " })}
 `;
 
 const TitleInput = styled.input`
@@ -115,6 +118,7 @@ const Create = styled.div`
   font-family: "Lora", serif;
   color: #f9a825;
   position: relative;
+  ${mobile({ flexDirection: "column" })}
 `;
 
 const Categories = styled.div`
@@ -138,6 +142,7 @@ const Time = styled.p`
   position: ${(props) => props.pos};
   left: 50%;
   transform: translateX(-50%);
+  ${mobile({ position: "inherit", margin: "10px 0" })}
 `;
 
 const Description = styled.p`
@@ -155,6 +160,7 @@ const Description = styled.p`
     margin-left: 30px;
     text-transform: uppercase;
   }
+  ${mobile({ padding: "10px" })}
 `;
 
 const DescTextArea = styled.textarea`
@@ -166,7 +172,10 @@ const DescTextArea = styled.textarea`
   border: none;
   outline: none;
   min-height: 60vh;
+  ${mobile({ height: "40vh" })}
 `;
+
+const ButtonWrapper = styled.div``;
 
 const SinglePost = () => {
   const location = useLocation();
@@ -179,22 +188,17 @@ const SinglePost = () => {
   const [updateMode, setUpdateMode] = useState(false);
   const [previewImage, setPreviewImage] = useState();
   const [file, setFile] = useState();
-  const navigate = useNavigate();
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     const getPost = async () => {
-      const res = await axios.get(`http://localhost:5000/api/posts/find/${id}`);
+      const res = await publicRequest.get(`/posts/find/${id}`);
       setPost(res.data);
       setTitle(res.data.title);
       setContent(res.data.content);
     };
     getPost();
   }, [id]);
-
-  const handleDelete = async () => {
-    deletePost(dispatch, id);
-    navigate("/");
-  };
 
   useEffect(() => {
     return () => {
@@ -212,49 +216,54 @@ const SinglePost = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     setUpdateMode(false);
-    const fileName = new Date().getTime() + file.name;
-    const storage = getStorage(app);
-    const metadata = {
-      contentType: "image/jpeg",
-    };
-    const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+    if (file) {
+      const fileName = new Date().getTime() + file.name;
+      const storage = getStorage(app);
+      const metadata = {
+        contentType: "image/jpeg",
+      };
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file, metadata);
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + progress + "% done");
-        switch (snapshot.state) {
-          case "paused":
-            console.log("Upload is paused");
-            break;
-          case "running":
-            console.log("Upload is running");
-            break;
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused");
+              break;
+            case "running":
+              console.log("Upload is running");
+              break;
 
-          default:
+            default:
+          }
+        },
+        (error) => {
+          switch (error.code) {
+            case "storage/unauthorized":
+              break;
+            case "storage/canceled":
+              break;
+            case "storage/unknown":
+              break;
+            default:
+          }
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            const post = { title, content, image: downloadURL };
+            updatePost(post, dispatch, id);
+          });
         }
-      },
-      (error) => {
-        switch (error.code) {
-          case "storage/unauthorized":
-            break;
-          case "storage/canceled":
-            break;
-          case "storage/unknown":
-            break;
-          default:
-        }
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          const post = { title, content, image: downloadURL };
-          updatePost(post, dispatch, id);
-        });
-      }
-    );
+      );
+    } else {
+      const post = { title, content };
+      updatePost(post, dispatch, id);
+    }
   };
 
   return (
@@ -262,7 +271,7 @@ const SinglePost = () => {
       <ImageWrapper>
         {post.image && (
           <Image
-            src={previewImage ? previewImage.preview : post.image}
+            src={previewImage ? previewImage.preview : post?.image}
             alt=""
           />
         )}
@@ -307,7 +316,7 @@ const SinglePost = () => {
                 />
               </Icon>
               <Icon>
-                <DeleteIcon onClick={handleDelete} />
+                <DeleteIcon onClick={() => setOpenModal(true)} />
               </Icon>
             </Action>
           )}
@@ -321,21 +330,30 @@ const SinglePost = () => {
           <Description>{content}</Description>
         )}
         {updateMode && (
-          <Button
-            variant="contained"
-            endIcon={<SendIcon />}
-            sx={{
-              width: "100px",
-              alignSelf: "flex-end",
-              marginTop: "20px",
-              backgroundColor: "teal",
-            }}
-            onClick={handleUpdate}
-          >
-            Update
-          </Button>
+          <ButtonWrapper>
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: "teal" }}
+              onClick={handleUpdate}
+            >
+              UPDATE
+            </Button>
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: "lightcoral", marginLeft: "20px" }}
+              onClick={() => setUpdateMode(false)}
+            >
+              CANCEL
+            </Button>
+          </ButtonWrapper>
         )}
       </Content>
+      <ConfirmModal
+        open={openModal}
+        setOpen={setOpenModal}
+        dispatch={dispatch}
+        id={id}
+      />
     </Container>
   );
 };

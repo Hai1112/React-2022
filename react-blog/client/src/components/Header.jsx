@@ -11,11 +11,13 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import app from "../firebase";
+import { mobile } from "../responsive";
 
 const Container = styled.div`
   position: relative;
   height: 600px;
   overflow: hidden;
+  ${mobile({ height: "300px" })}
 `;
 
 const Heading = styled.div`
@@ -157,7 +159,7 @@ const Header = () => {
   return (
     <Container>
       <Heading>
-        <TitleSmall>React & Node</TitleSmall>
+        <TitleSmall>Random</TitleSmall>
         <TitleLarge>BLOG</TitleLarge>
       </Heading>
       <ImageWrapper>

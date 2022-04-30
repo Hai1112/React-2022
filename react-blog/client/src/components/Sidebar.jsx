@@ -1,11 +1,12 @@
 import styled from "styled-components";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import PinterestIcon from "@mui/icons-material/Pinterest";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { mobile } from "../responsive";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
   flex: 1;
@@ -14,6 +15,7 @@ const Container = styled.div`
   margin: 20px;
   padding: 0 10px 30px;
   height: fit-content;
+  ${mobile({ display: "none" })}
 `;
 
 const Content = styled.div`
@@ -40,22 +42,22 @@ const ImageWrapper = styled.div`
   width: 100%;
   height: 250px;
   position: relative;
-  margin-bottom: 8px;
-  overflow: hidden;
 `;
 const Image = styled.img`
-  position: absolute;
-  top: -50px;
-  right: -50px;
-  height: 400px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
+
 const Description = styled.p`
   width: 90%;
   font-family: "Lora", serif;
   font-size: 14px;
   color: #444;
   text-align: justify;
+  margin-top: 12px;
 `;
+
 const List = styled.ul`
   width: 80%;
   display: flex;
@@ -77,6 +79,11 @@ const StyledLink = styled(Link)`
   color: inherit;
 `;
 
+const Anchor = styled.a`
+  color: inherit;
+  text-decoration: none;
+`;
+
 const Social = styled.div`
   display: flex;
   justify-content: center;
@@ -89,6 +96,7 @@ const Icon = styled.div`
 `;
 
 const Sidebar = () => {
+  const about = useSelector((state) => state.about.currentAbout);
   const [cats, setCats] = useState([]);
   useEffect(() => {
     const getCats = async () => {
@@ -106,13 +114,9 @@ const Sidebar = () => {
       <Content>
         <Title>ABOUT ME</Title>
         <ImageWrapper>
-          <Image src="/images/Profile.jpg" alt="Profile"></Image>
+          <Image src={about?.[0]?.image} alt="Profile"></Image>
         </ImageWrapper>
-        <Description>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ratione
-          voluptatem sint quas voluptatibus quisquam ex nobis. Corrupti cumque
-          amet obcaecati?
-        </Description>
+        <Description>{about?.[0]?.quote}</Description>
         <Title>CATEGORIES</Title>
         <List>
           {cats.map((cat) => (
@@ -121,19 +125,26 @@ const Sidebar = () => {
             </ListItem>
           ))}
         </List>
-        <Title>FOLLOW US</Title>
+        <Title>FOLLOW ME</Title>
         <Social>
           <Icon>
-            <FacebookIcon />
+            <Anchor href={about?.[0]?.facebook}>
+              <FacebookIcon />
+            </Anchor>
           </Icon>
           <Icon>
-            <TwitterIcon />
+            <Anchor
+              href={about?.[0]?.twitter === "" ? "#" : about?.[0]?.twitter}
+            >
+              <TwitterIcon />
+            </Anchor>
           </Icon>
           <Icon>
-            <PinterestIcon />
-          </Icon>
-          <Icon>
-            <InstagramIcon />
+            <Anchor
+              href={about?.[0]?.instagram === "" ? "#" : about?.[0]?.instagram}
+            >
+              <InstagramIcon />
+            </Anchor>
           </Icon>
         </Social>
       </Content>

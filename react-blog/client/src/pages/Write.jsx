@@ -13,9 +13,11 @@ import {
 import app from "../firebase";
 import { addPost } from "../redux/apiCalls";
 import { useDispatch } from "react-redux";
+import { mobile } from "../responsive";
 
 const Container = styled.div`
   padding: 50px 0;
+  ${mobile({ padding: "10px" })}
 `;
 
 const Image = styled.img`
@@ -25,6 +27,7 @@ const Image = styled.img`
   object-fit: cover;
   border-radius: 10px;
   margin-bottom: 20px;
+  ${mobile({ width: "100%", objectFit: "cover", margin: 0 })}
 `;
 
 const Form = styled.form`
@@ -35,6 +38,7 @@ const FormGroup = styled.div`
   margin-left: 150px;
   display: flex;
   align-items: center;
+  ${mobile({ margin: 0 })}
 `;
 
 const Label = styled.label`
@@ -63,6 +67,7 @@ const Input = styled.input`
   &::placeholder {
     color: #ccc;
   }
+  ${mobile({ width: "80vw", padding: "20px 10px" })}
 `;
 
 const CategoryLabel = styled.label`
@@ -82,6 +87,7 @@ const CategoryInput = styled.input`
   font-family: "Lora", serif;
   min-width: 25%;
   border-bottom: 1px solid lightgrey;
+  ${mobile({ flex: 1, marginRight: "10px" })}
 `;
 
 const TextArea = styled.textarea`
@@ -93,6 +99,24 @@ const TextArea = styled.textarea`
   font-family: "Lora", serif;
   font-size: 16px;
   line-height: 24px;
+  ${mobile({ width: "100%", height: "60vh" })}
+`;
+
+const ButtonWrap = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ${mobile({
+    position: "inherit",
+    width: "100vw",
+    justifyContent: "flex-start",
+    top: 0,
+    right: 0,
+    marginTop: "12px",
+  })}
 `;
 
 const Write = () => {
@@ -203,22 +227,17 @@ const Write = () => {
               onChange={handleInput}
             />
           </FormGroup>
-          <Button
-            type="submit"
-            variant="contained"
-            endIcon={<SendIcon />}
-            onClick={handleCreate}
-            sx={{
-              position: "absolute",
-              top: "20px",
-              right: "50px",
-              display: "flex",
-              alignItems: "center",
-              backgroundColor: "teal",
-            }}
-          >
-            Publish
-          </Button>
+          <ButtonWrap>
+            <Button
+              type="submit"
+              variant="contained"
+              endIcon={<SendIcon />}
+              onClick={handleCreate}
+              sx={{ backgroundColor: "teal" }}
+            >
+              Publish
+            </Button>
+          </ButtonWrap>
         </Form>
       </Container>
     </>

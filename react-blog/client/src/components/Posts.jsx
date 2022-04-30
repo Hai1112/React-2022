@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import Post from "./Post";
+import { mobile } from "../responsive";
 
 const Container = styled.div`
   flex: 3;
@@ -8,6 +9,7 @@ const Container = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   align-content: flex-start;
+  ${mobile({ width: "100%", margin: "20px 0", padding: "20px" })}
 `;
 
 const Posts = ({ posts }) => {

@@ -4,9 +4,18 @@ import { Button } from "@mui/material";
 import Sidebar from "../components/Sidebar";
 import SendIcon from "@mui/icons-material/Send";
 import Navbar from "../components/Navbar";
-import { useContext, useState } from "react";
-import { Context } from "../context/Context";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import app from "../firebase";
+import { logout, updateUser } from "../redux/apiCalls";
+import { useNavigate } from "react-router-dom";
+import { mobile } from "../responsive";
 
 const Container = styled.div`
   display: flex;
@@ -30,23 +39,20 @@ const SettingUpdate = styled.p`
   font-family: "Varela", sans-serif;
 `;
 
-const SettingDelete = styled.p`
-  font-size: 16px;
-  font-family: "Valera", sans-serif;
-  color: red;
-  cursor: pointer;
-`;
-
 const Form = styled.form`
   display: flex;
-  flex-direction: column;
+  padding: 0 40px;
+  ${mobile({ flexDirection: "column", padding: "0 10px" })}
 `;
 
 const UpdatePicture = styled.div`
+  flex: 1;
   display: flex;
   margin: 10px 0;
   flex-direction: column;
   align-items: center;
+  margin-right: 40px;
+  ${mobile({ marginRight: 0 })}
 `;
 
 const Image = styled.img`
@@ -57,6 +63,12 @@ const Image = styled.img`
 `;
 
 const IconLabel = styled.label``;
+
+const UpdateInput = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 2;
+`;
 
 const FileInput = styled.input`
   display: none;
@@ -77,52 +89,94 @@ const Input = styled.input`
   font-family: "Josefin Sans", sans-serif;
 `;
 
-const Notify = styled.p`
-  color: teal;
-  margin-top: 18px;
-  text-align: center;
-  font-family: "Lora", serif;
-`;
-
 const Setting = () => {
-  const { user, dispatch } = useContext(Context);
-  const [file, setFile] = useState(null);
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [success, setSuccess] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user.currentUser);
+  console.log(user);
+  const id = user?._id;
+  const [file, setFile] = useState();
+  const [username, setUsername] = useState(user.username);
+  const [email, setEmail] = useState(user.email);
+  const [password, setPassword] = useState(user.password);
+  const [previewImage, setPreviewImage] = useState();
 
-  const PF = "http://localhost:5000/images/";
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    dispatch({ type: "UPDATE_START" });
-    const updatedUser = {
-      userId: user._id,
-      username,
-      email,
-      password,
+  useEffect(() => {
+    return () => {
+      previewImage && URL.revokeObjectURL(previewImage.preview);
     };
+  }, [previewImage]);
+
+  const handleFile = (e) => {
+    setFile(e.target.files[0]);
+    const FILE = e.target.files[0];
+    FILE.preview = URL.createObjectURL(FILE);
+    setPreviewImage(FILE);
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
     if (file) {
-      const data = new FormData();
-      const filename = Date.now() + file.name;
-      data.append("name", filename);
-      data.append("file", file);
-      updatedUser.profilePic = filename;
-      try {
-        await axios.post("http://localhost:5000/api/upload", data);
-      } catch (err) {}
-    }
-    try {
-      const res = await axios.put(
-        "http://localhost:5000/api/users/" + user._id,
-        updatedUser
+      const fileName = new Date().getTime() + file.name;
+      const storage = getStorage(app);
+      const metadata = {
+        contentType: "image/jpeg",
+      };
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused");
+              break;
+            case "running":
+              console.log("Upload is running");
+              break;
+
+            default:
+          }
+        },
+        (error) => {
+          switch (error.code) {
+            case "storage/unauthorized":
+              break;
+            case "storage/canceled":
+              break;
+            case "storage/unknown":
+              break;
+            default:
+          }
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            const newInfo = {
+              username: username === "" ? user.username : username,
+              email: email === "" ? user.email : email,
+              password: password === "" ? user.password : password,
+              avatar: downloadURL,
+            };
+            updateUser(dispatch, newInfo, id);
+          });
+        }
       );
-      setSuccess(true);
-      dispatch({ type: "UPDATE_SUCCESS", payload: res.data });
-    } catch (err) {
-      dispatch({ type: "UPDATE_FAILURE" });
+    } else {
+      const newInfo = {
+        username: username === "" ? user.username : username,
+        email: email === "" ? user.email : email,
+        password: password === "" ? user.password : password,
+      };
+      updateUser(dispatch, newInfo, id);
     }
+    setTimeout(() => {
+      logout(dispatch);
+      navigate("/login");
+    }, 3000);
   };
   return (
     <>
@@ -131,58 +185,55 @@ const Setting = () => {
         <SettingWrapper>
           <SettingTitle>
             <SettingUpdate>Update account</SettingUpdate>
-            <SettingDelete>Delete account</SettingDelete>
           </SettingTitle>
-          <Form onSubmit={handleSubmit}>
+          <Form>
             <UpdatePicture>
               <Image
-                src={file ? URL.createObjectURL(file) : PF + user.profilePic}
+                src={previewImage ? previewImage.preview : user?.avatar}
                 alt=""
               />
-              <FileInput
-                type="file"
-                id="fileInput"
-                onChange={(e) => setFile(e.target.files[0])}
-              />
+              <FileInput type="file" id="fileInput" onChange={handleFile} />
               <IconLabel htmlFor="fileInput">
                 <AccountCircleIcon
                   sx={{ width: "30px", height: "30px", color: "teal" }}
                 />
               </IconLabel>
             </UpdatePicture>
-            <Label>Username</Label>
-            <Input
-              type="text"
-              name="name"
-              placeholder="Yui"
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <Label>Email</Label>
-            <Input
-              type="text"
-              name="email"
-              placeholder="yui@gmail.com"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Label>Password</Label>
-            <Input
-              type="password"
-              name="password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            {success && <Notify>Profile has been updated...</Notify>}
-            <Button
-              type="submit"
-              variant="contained"
-              endIcon={<SendIcon />}
-              sx={{
-                alignSelf: "center",
-                padding: "10px 30px",
-                marginTop: "20px",
-              }}
-            >
-              Update
-            </Button>
+            <UpdateInput>
+              <Label>Username</Label>
+              <Input
+                type="text"
+                name="name"
+                defaultValue={user.username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <Label>Email</Label>
+              <Input
+                type="text"
+                name="email"
+                defaultValue={user.email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Label>Password</Label>
+              <Input
+                type="password"
+                name="password"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                endIcon={<SendIcon />}
+                onClick={handleUpdate}
+                sx={{
+                  alignSelf: "center",
+                  padding: "10px 30px",
+                  marginTop: "40px",
+                }}
+              >
+                Update
+              </Button>
+            </UpdateInput>
           </Form>
         </SettingWrapper>
         <Sidebar />

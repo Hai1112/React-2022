@@ -4,6 +4,12 @@ import {
   loginStart,
   loginSuccess,
   logoutSuccess,
+  updateFailure,
+  updateStart,
+  updateSuccess,
+  getUserStart,
+  getUserSuccess,
+  getUserFailure,
 } from "./userRedux";
 import {
   getPostStart,
@@ -27,6 +33,14 @@ import {
   updateCoverStart,
   updateCoverSuccess,
 } from "./coverRedux";
+import {
+  getAboutFailure,
+  getAboutStart,
+  getAboutSuccess,
+  updateAboutFailure,
+  updateAboutStart,
+  updateAboutSuccess,
+} from "./aboutRedux";
 
 //LOGIN
 export const login = async (dispatch, user) => {
@@ -42,6 +56,28 @@ export const login = async (dispatch, user) => {
 //LOGOUT
 export const logout = async (dispatch) => {
   dispatch(logoutSuccess());
+};
+
+//UPDATE USER
+export const updateUser = async (dispatch, user, id) => {
+  dispatch(updateStart());
+  try {
+    const res = await userRequest.put(`/users/${id}`, user);
+    dispatch(updateSuccess(res.data));
+  } catch (err) {
+    dispatch(updateFailure());
+  }
+};
+
+//GET USER
+export const getUser = async (dispatch, id) => {
+  dispatch(getUserStart());
+  try {
+    const res = await userRequest.get(`/users/find/${id}`);
+    dispatch(getUserSuccess(res.data));
+  } catch (err) {
+    getUserFailure(err);
+  }
 };
 
 //GET POST
@@ -107,5 +143,27 @@ export const updateCover = async (dispatch, cover, id) => {
     dispatch(updateCoverSuccess(res.data));
   } catch (err) {
     dispatch(updateCoverFailure());
+  }
+};
+
+//GET ABOUT
+export const getAbout = async (dispatch) => {
+  dispatch(getAboutStart());
+  try {
+    const res = await publicRequest.get("/about");
+    dispatch(getAboutSuccess(res.data));
+  } catch (err) {
+    dispatch(getAboutFailure());
+  }
+};
+
+//UPDATE ABOUT
+export const updateAbout = async (dispatch, about, id) => {
+  dispatch(updateAboutStart());
+  try {
+    const res = await userRequest.put(`/about/${id}`, about);
+    dispatch(updateAboutSuccess(res.data));
+  } catch (err) {
+    dispatch(updateAboutFailure());
   }
 };

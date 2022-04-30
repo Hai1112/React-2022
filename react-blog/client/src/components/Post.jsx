@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { mobile } from "../responsive";
 
 const Container = styled.div`
   width: 385px;
@@ -10,6 +11,7 @@ const Container = styled.div`
   margin: 8px 40px 20px;
   background-color: #fdfbfb;
   border-radius: 8px;
+  ${mobile({ width: "100%", margin: "20px 0" })}
 `;
 
 const Image = styled.img`
@@ -17,6 +19,7 @@ const Image = styled.img`
   height: 280px;
   object-fit: cover;
   border-radius: 8px;
+  ${mobile({ width: "100%", objectFit: "cover" })}
 `;
 
 const Content = styled.div`
