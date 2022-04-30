@@ -101,11 +101,11 @@ const Sidebar = () => {
   useEffect(() => {
     const getCats = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/categories");
+        const res = await axios.get(
+          "https://blograndom.herokuapp.com/api/categories"
+        );
         setCats(res.data);
-      } catch (err) {
-        console.error(err);
-      }
+      } catch (err) {}
     };
     getCats();
   }, []);

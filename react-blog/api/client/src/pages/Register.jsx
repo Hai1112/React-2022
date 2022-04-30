@@ -2,7 +2,6 @@ import { Button } from "@mui/material";
 import { useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
-// import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
 const Container = styled.div`
@@ -70,11 +69,14 @@ const Register = () => {
     e.preventDefault();
     setError(false);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
-        username,
-        email,
-        password,
-      });
+      const res = await axios.post(
+        "https://blograndom.herokuapp.com/api/auth/register",
+        {
+          username,
+          email,
+          password,
+        }
+      );
       res.data && window.location.replace("/login");
     } catch (err) {
       setError(true);

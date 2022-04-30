@@ -9,6 +9,7 @@ const postRoute = require("./routes/post");
 const categoryRoute = require("./routes/category");
 const photoCoverRoute = require("./routes/photoCover");
 const aboutRoute = require("./routes/about");
+const path = require("path");
 
 dotenv.config();
 
@@ -25,6 +26,12 @@ app.use("/api/posts", postRoute);
 app.use("/api/categories", categoryRoute);
 app.use("/api/cover", photoCoverRoute);
 app.use("/api/about", aboutRoute);
+
+app.use(express.static(path.join(__dirname, "/client/build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "/client/build", "index.html"));
+});
 
 app.listen(process.env.PORT || 5000, () =>
   console.log("Backend server is running...")

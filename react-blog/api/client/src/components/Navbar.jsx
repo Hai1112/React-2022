@@ -95,15 +95,13 @@ const MenuIconWrapper = styled.div`
 const Navbar = () => {
   const user = useSelector((state) => state.user.currentUser);
   const about = useSelector((state) => state.about.currentAbout);
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = () => {
     logout(dispatch);
     navigate("/login");
   };
-
-  const [open, setOpen] = useState(false);
-  console.log(open);
 
   const List = styled.ul`
     display: flex;

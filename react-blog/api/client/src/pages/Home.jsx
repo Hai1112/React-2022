@@ -5,7 +5,7 @@ import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPosts } from "../redux/apiCalls";
+import { getAbout, getPosts } from "../redux/apiCalls";
 import { useLocation } from "react-router-dom";
 
 const Container = styled.div``;
@@ -23,6 +23,10 @@ const Home = () => {
   useEffect(() => {
     getPosts(dispatch, category);
   }, [dispatch, category]);
+
+  useEffect(() => {
+    getAbout(dispatch);
+  }, [dispatch]);
 
   return (
     <Container>

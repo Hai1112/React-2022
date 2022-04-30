@@ -93,7 +93,6 @@ const Setting = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user.currentUser);
-  console.log(user);
   const id = user?._id;
   const [file, setFile] = useState();
   const [username, setUsername] = useState(user.username);
@@ -128,15 +127,10 @@ const Setting = () => {
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload is " + progress + "% done");
           switch (snapshot.state) {
             case "paused":
-              console.log("Upload is paused");
               break;
             case "running":
-              console.log("Upload is running");
               break;
 
             default:
