@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { mobile } from "../responsive";
 
 const Container = styled.div`
   flex: 1;
@@ -11,9 +12,9 @@ const Container = styled.div`
   text-align: center;
 `;
 const Image = styled.img`
-  width: 90%;
+  width: 100%;
   object-fit: cover;
-  margin-top: 5vh;
+  ${mobile({ height: "20vh" })}
 `;
 const Info = styled.div`
   position: absolute;

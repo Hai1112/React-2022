@@ -15,16 +15,12 @@ import Login from "./pages/Login";
 import { useSelector } from "react-redux";
 
 function App() {
-  const user = useSelector((state) => state.user.currentUser);
+  // const user = useSelector((state) => state.user.currentUser);
   return (
     <Router>
       <Routes>
         <Route path="/" exact element={<Home />}></Route>
-        <Route
-          path="/login"
-          exact
-          element={user ? <Navigate to="/" /> : <Login />}
-        ></Route>
+        <Route path="/login" exact element={<Login />}></Route>
         <Route path="/users" exact element={<Users />}></Route>
         <Route path="/user/:id" exact element={<User />}></Route>
         <Route path="/newUser" exact element={<NewUser />}></Route>

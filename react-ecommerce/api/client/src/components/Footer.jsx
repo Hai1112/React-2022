@@ -6,9 +6,11 @@ import PinterestIcon from "@mui/icons-material/Pinterest";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PhoneIcon from "@mui/icons-material/Phone";
 import MailIcon from "@mui/icons-material/Mail";
+import { mobile } from "../responsive";
 
 const Container = styled.div`
   display: flex;
+  ${mobile({ flexDirection: "column" })}
 `;
 
 const Left = styled.div`
@@ -43,6 +45,7 @@ const SocialIcon = styled.div`
 const Center = styled.div`
   flex: 1;
   padding: 20px;
+  ${mobile({ backgroundColor: "#fff8f8" })}
 `;
 
 const Title = styled.h3`
@@ -121,7 +124,7 @@ const Footer = () => {
         <Title>Contact</Title>
         <ContactItem>
           <LocationOnIcon sx={{ marginRight: "10px" }} />
-          622 Dixie Path , South Tobinchester 98336
+          435 Pham Van Dong, Bac Tu Liem, Ha Noi
         </ContactItem>
         <ContactItem>
           <PhoneIcon sx={{ marginRight: "10px" }} />

@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../redux/apiCalls";
+import { mobile } from "../responsive";
 
 const Container = styled.div`
   width: 100vw;
@@ -21,6 +22,7 @@ const Wrapper = styled.div`
   width: 25%;
   padding: 20px;
   background-color: rgba(221, 247, 254, 0.6);
+  ${mobile({ width: "85%" })}
 `;
 
 const Title = styled.h1`

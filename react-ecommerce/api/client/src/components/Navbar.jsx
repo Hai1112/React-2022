@@ -3,7 +3,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import Badge from "@mui/material/Badge";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { mobile } from "../responsive";
+import { logout } from "../redux/apiCalls";
 
 const Container = styled.div`
   height: 60px;
@@ -14,6 +16,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  ${mobile({ padding: "10px 0px" })}
 `;
 
 const Left = styled.div`
@@ -25,6 +28,7 @@ const Left = styled.div`
 const Language = styled.div`
   font-size: 14px;
   cursor: pointer;
+  ${mobile({ display: "none" })}
 `;
 
 const SearchWrapper = styled.div`
@@ -38,6 +42,7 @@ const SearchWrapper = styled.div`
 const Input = styled.input`
   border: none;
   outline: none;
+  ${mobile({ width: "50px" })}
 `;
 
 const Center = styled.div`
@@ -52,6 +57,7 @@ const StyledLink = styled(Link)`
 
 const Logo = styled.h1`
   font-weight: bold;
+  ${mobile({ fontSize: "24px" })}
 `;
 
 const Right = styled.div`
@@ -59,17 +65,25 @@ const Right = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  ${mobile({ flex: 2, justifyContent: "center" })}
 `;
 
 const MenuItem = styled.div`
   font-size: 14px;
   cursor: pointer;
   margin-left: 25px;
+  ${mobile({ fontSize: "12px", marginLeft: "10px" })}
 `;
 
 const Navbar = () => {
+  const dispatch = useDispatch();
   const quantity = useSelector((state) => state.cart.quantity);
-  console.log(quantity);
+  const user = useSelector((state) => state.user.currentUser);
+
+  const handleLogout = () => {
+    logout(dispatch);
+  };
+
   return (
     <Container>
       <Wrapper>
@@ -86,12 +100,20 @@ const Navbar = () => {
           </StyledLink>
         </Center>
         <Right>
-          <StyledLink to="/login">
-            <MenuItem>SIGN IN</MenuItem>
-          </StyledLink>
-          <StyledLink to="/register">
-            <MenuItem>REGISTER</MenuItem>
-          </StyledLink>
+          {user ? (
+            <StyledLink to="/">
+              <MenuItem onClick={handleLogout}>LOGOUT</MenuItem>
+            </StyledLink>
+          ) : (
+            <>
+              <StyledLink to="/login">
+                <MenuItem>SIGN IN</MenuItem>
+              </StyledLink>
+              <StyledLink to="/register">
+                <MenuItem>REGISTER</MenuItem>
+              </StyledLink>
+            </>
+          )}
           <StyledLink to="/cart">
             <MenuItem>
               <Badge badgeContent={quantity} color="primary">

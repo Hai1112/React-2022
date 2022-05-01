@@ -12,11 +12,13 @@ import Product from "./pages/Product";
 import ProductList from "./pages/ProductList";
 import Register from "./pages/Register";
 import Success from "./pages/Success";
+import ScrollToTop from "./ScrollToTop";
 
 function App() {
   const user = useSelector((state) => state.user.currentUser);
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" exact element={<Home />}></Route>
         <Route

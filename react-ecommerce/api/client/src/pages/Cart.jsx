@@ -10,6 +10,7 @@ import StripeCheckout from "react-stripe-checkout";
 import { useEffect, useState } from "react";
 import { userRequest } from "../requestMethods";
 import { useNavigate } from "react-router-dom";
+import { mobile } from "../responsive";
 
 const KEY = process.env.REACT_APP_STRIPE;
 
@@ -17,6 +18,7 @@ const Container = styled.div``;
 
 const Wrapper = styled.div`
   padding: 20px;
+  ${mobile({ padding: "10px" })}
 `;
 
 const Title = styled.h1`
@@ -41,7 +43,9 @@ const TopButton = styled.button`
   color: ${(props) => props.type === "filled" && "white"};
 `;
 
-const TopTexts = styled.div``;
+const TopTexts = styled.div`
+  ${mobile({ display: "none" })}
+`;
 
 const TopText = styled.span`
   text-decoration: underline;
@@ -52,6 +56,7 @@ const TopText = styled.span`
 const Bottom = styled.div`
   display: flex;
   justify-content: space-between;
+  ${mobile({ flexDirection: "column" })}
 `;
 
 const Info = styled.div`
@@ -61,6 +66,7 @@ const Info = styled.div`
 const Product = styled.div`
   display: flex;
   justify-content: space-between;
+  ${mobile({ flexDirection: "column" })}
 `;
 
 const ProductDetail = styled.div`
@@ -110,11 +116,13 @@ const ProductAmountContainer = styled.div`
 const ProductAmount = styled.div`
   font-size: 24px;
   margin: 5px;
+  ${mobile({ margin: "5px 15px" })}
 `;
 
 const ProductPrice = styled.p`
   font-size: 30px;
   font-weight: 200;
+  ${mobile({ marginBottom: "20px" })}
 `;
 
 const Hr = styled.hr`
@@ -168,7 +176,7 @@ const Cart = () => {
 
   useEffect(() => {
     const makeRequest = async () => {
-      const res = await userRequest.post("/checkout/payment", {
+      await userRequest.post("/checkout/payment", {
         tokenId: stripeToken.id,
         amount: cart.total * 100,
       });
