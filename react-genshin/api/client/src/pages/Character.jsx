@@ -34,6 +34,7 @@ const Heading = styled(Typography)(({ theme }) => ({
   [theme.breakpoints.down("sm")]: {
     fontSize: "42px",
     padding: "10px 20px",
+    width: "100vn",
   },
 }));
 
@@ -53,7 +54,7 @@ const Character = () => {
   useEffect(() => {
     const getCharacter = async () => {
       const res = await axios.get(
-        `http://localhost:5000/api/characters/find/` + id
+        `https://gidatabase.herokuapp.com/api/characters/find/` + id
       );
       setCharacter(res.data);
     };

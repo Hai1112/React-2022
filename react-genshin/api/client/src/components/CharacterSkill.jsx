@@ -7,6 +7,18 @@ const TalentImage = styled("img")(({ theme }) => ({
   position: "absolute",
   top: "-30px",
   left: "20px",
+  [theme.breakpoints.down("sm")]: {
+    left: "50%",
+    transform: "translateX(-50%)",
+  },
+}));
+
+const SkillHeader = styled(Box)(({ theme }) => ({
+  marginLeft: theme.spacing(15),
+  [theme.breakpoints.down("sm")]: {
+    margin: "60px 0 0 0",
+    textAlign: "center",
+  },
 }));
 
 const PanelWrapper = styled(Box)(({ theme }) => ({
@@ -17,6 +29,9 @@ const PanelWrapper = styled(Box)(({ theme }) => ({
   borderRadius: "8px",
   [theme.breakpoints.down("lg")]: {
     margin: "32px 16px 16px",
+  },
+  [theme.breakpoints.down("sm")]: {
+    padding: 0,
   },
 }));
 
@@ -36,6 +51,38 @@ const ConstellationWrapper = styled(Box)(({ theme }) => ({
   borderRadius: "8px",
   [theme.breakpoints.down("lg")]: {
     width: "90%",
+  },
+  [theme.breakpoints.down("sm")]: {
+    margin: "60px 8px",
+  },
+}));
+
+const ConstellationImage = styled(Box)(({ theme }) => ({
+  width: "80px",
+  position: "absolute",
+  left: "-30px",
+  [theme.breakpoints.down("sm")]: {
+    width: "100px",
+    top: "-40px",
+    left: "0",
+    right: "0",
+    margin: "0 auto",
+  },
+}));
+
+const ConstellationHeader = styled(Box)(({ theme }) => ({
+  margin: "0 0 4px 60px",
+  [theme.breakpoints.down("sm")]: {
+    margin: "60px 0 8px 0",
+    textAlign: "center",
+  },
+}));
+
+const ConstellationEffect = styled(Typography)(({ theme }) => ({
+  marginLeft: "60px",
+  whiteSpace: "pre-line",
+  [theme.breakpoints.down("sm")]: {
+    margin: "8px",
   },
 }));
 
@@ -58,18 +105,24 @@ const CharacterSkill = ({
         </Typography>
         <Grid container my={4}>
           {character.combatTalents?.map((skill) => (
-            <Grid item md={4} xs={12} mb={6}>
+            <Grid item md={4} xs={12} mb={6} key={skill.name}>
               <SkillWrapper backgroundColor={setBackgroundColor}>
                 <TalentImage src={skill.icon} />
-                <Box ml={15}>
+                <SkillHeader>
                   <Typography fontWeight="bold">{skill.type}</Typography>
                   <SkillName variant="h6">{skill.name}</SkillName>
-                </Box>
+                </SkillHeader>
                 <Box>
                   <Typography mt={3}>{skill.detail}</Typography>
                   {skill.effects?.map((effect) => (
-                    <Box my={3}>
-                      <Typography sx={{ color: setColor, fontWeight: "bold" }}>
+                    <Box my={3} key={effect.desc}>
+                      <Typography
+                        sx={{
+                          color: setColor,
+                          fontWeight: "bold",
+                          textAlign: "justify",
+                        }}
+                      >
                         {effect.effect}
                       </Typography>
                       <Typography sx={{ whiteSpace: "pre-line" }}>
@@ -91,13 +144,13 @@ const CharacterSkill = ({
         </Typography>
         <Grid container my={4}>
           {character.passiveTalents?.map((skill) => (
-            <Grid item md={4} xs={12} mb={6}>
+            <Grid item md={4} xs={12} mb={6} key={skill.name}>
               <SkillWrapper backgroundColor={setBackgroundColor}>
                 <TalentImage src={skill.icon} />
-                <Box ml={15}>
+                <SkillHeader>
                   <Typography fontWeight="bold">{skill.type}</Typography>
                   <SkillName variant="h6">{skill.name}</SkillName>
-                </Box>
+                </SkillHeader>
                 <Typography mt={3} sx={{ whiteSpace: "pre-line" }}>
                   {skill.effect}
                 </Typography>
@@ -108,16 +161,17 @@ const CharacterSkill = ({
       </PanelWrapper>
 
       <PanelWrapper display={show === "constellations" ? "" : "none"}>
-        <Typography variant="h4">CONSTELLATIONS</Typography>
+        <Typography variant="h4" pt={1}>
+          CONSTELLATIONS
+        </Typography>
         <Box>
           {character.constellations?.map((constellation) => (
-            <ConstellationWrapper backgroundColor={setBackgroundColor}>
-              <Box
-                component="img"
-                src={constellation.icon}
-                sx={{ width: "80px", position: "absolute", left: "-30px" }}
-              />
-              <Box ml={10} mb={1}>
+            <ConstellationWrapper
+              backgroundColor={setBackgroundColor}
+              key={constellation.name}
+            >
+              <ConstellationImage component="img" src={constellation.icon} />
+              <ConstellationHeader>
                 <Typography sx={{ fontWeight: "bold" }}>
                   Constellation {constellation.id}
                 </Typography>
@@ -131,10 +185,8 @@ const CharacterSkill = ({
                 >
                   {constellation.name}
                 </Typography>
-              </Box>
-              <Typography ml={10} sx={{ whiteSpace: "pre-line" }}>
-                {constellation.effect}
-              </Typography>
+              </ConstellationHeader>
+              <ConstellationEffect>{constellation.effect}</ConstellationEffect>
             </ConstellationWrapper>
           ))}
         </Box>

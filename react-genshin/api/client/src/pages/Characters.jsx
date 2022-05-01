@@ -41,7 +41,9 @@ const Characters = () => {
   useEffect(() => {
     const getCharacters = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/characters");
+        const res = await axios.get(
+          "https://gidatabase.herokuapp.com/api/characters"
+        );
         setCharacters(res.data);
         setFilter(res.data);
       } catch (err) {

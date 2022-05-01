@@ -15,7 +15,7 @@ const Artifact = () => {
     const getArtifact = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/artifacts/find/` + id
+          `https://gidatabase.herokuapp.com/api/artifacts/find/` + id
         );
         setArtifact(res.data);
       } catch (err) {

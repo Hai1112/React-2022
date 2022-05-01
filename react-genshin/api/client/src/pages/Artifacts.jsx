@@ -17,7 +17,9 @@ const Artifacts = () => {
   useEffect(() => {
     const getArtifacts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/artifacts");
+        const res = await axios.get(
+          "https://gidatabase.herokuapp.com/api/artifacts"
+        );
         setArtifacts([...res.data].sort((a, b) => b.rarity - a.rarity));
       } catch (err) {
         console.error(err);

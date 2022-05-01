@@ -49,7 +49,7 @@ const Weapon = () => {
   useEffect(() => {
     const getWeapon = async () => {
       const res = await axios.get(
-        `http://localhost:5000/api/weapons/find/` + id
+        `https://gidatabase.herokuapp.com/api/weapons/find/` + id
       );
       setWeapon(res.data);
     };
